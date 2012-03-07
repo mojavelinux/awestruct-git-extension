@@ -44,6 +44,7 @@ module Awestruct
               path = File.basename(git_url.split('/').last, '.git')
               @repositories << OpenStruct.new({
                 :path => path,
+                :relative_path => '',
                 :desc => nil,
                 :owner => git_url.split('/').last(2).first,
                 :host => URI(git_url).host,
@@ -63,6 +64,17 @@ module Awestruct
               more_pages = false
             end
           end
+
+          @repositories << OpenStruct.new(
+            :path => 'jboss-as',
+            :desc => nil,
+            :relative_path => 'arquillian/',
+            :owner => 'jbossas',
+            :host => 'github.com',
+            :type => 'git',
+            :http_url => 'http://github.com/jbossas/jboss-as',
+            :clone_url => 'git://github.com/jbossas/jboss-as.git'
+          )
 
           @repositories.sort! {|a,b| a.path <=> b.path }
           @repositories.map {|r|

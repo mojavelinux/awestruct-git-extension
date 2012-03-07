@@ -41,15 +41,15 @@ module Awestruct::Extensions::Repository::Visitors
       repo = repository.repo
       m = OpenStruct.new
       m.repository = repository
-      m.name = resolve_name(repo)
+      m.name = resolve_name(repository)
       m.desc = repository.desc
-      m.groupId = resolve_group_id(repo)
+      m.groupId = resolve_group_id(repository)
       m.parent = true
-      m.lead = resolve_lead(repo)
+      m.lead = resolve_lead(repository)
       m.license = 'Apache License 2.0'
       m.releases = []
-      last_sha = nil
-      repo.tags.each do |t|
+      last_real_sha = nil
+      repo.tags.select {|t| t.name =~ /^[1-9]\d*\.\d+\.\d+\.((Alpha|Beta|CR)[1-9]\d*|Final)$/ }.each do |t|
         release = OpenStruct.new
         release.version = t.name
         real_sha = repo.revparse(t.name + '^0')
@@ -64,42 +64,51 @@ module Awestruct::Extensions::Repository::Visitors
         #release.license = 'Apache License 2.0'
         # a follow-up extension will fill in the issues
         #release.issues = []
-        release.committers = resolve_committers_between(repo, last_sha, real_sha)
-        release.depversions = resolve_dep_versions(repository.repo, release.version)
+        release.committers = resolve_committers_between(repository, last_real_sha, real_sha)
+        # not assigning to release since it can be very space intensive
+        depversions = resolve_dep_versions(repository, release.version)
         release.compiledeps = []
         {
           'arquillian_core' => 'Arquillian Core',
+          'org_jboss_arquillian_core' => 'Arquillian Core',
           'shrinkwrap_shrinkwrap' => 'ShrinkWrap Core',
           'shrinkwrap_descriptors' => 'ShrinkWrap Descriptors',
           'shrinkwrap_resolver' => 'ShrinkWrap Resolvers',
           'junit_junit' => 'JUnit',
           'testng_testng' => 'TestNG'
-        }.each do |artifact, name|
-          if release.depversions.has_key? artifact
-            release.compiledeps << OpenStruct.new({:name => name, :version => release.depversions[artifact]})
+        }.each do |key, name|
+          if depversions.has_key? key
+            release.compiledeps << OpenStruct.new({:name => name, :key => key, :version => depversions[key]})
           end
         end
          m.releases << release
-         last_sha = real_sha
+         last_real_sha = real_sha
       end
       # QUESTION put modules on repository? (can be more than one)
       site.modules[repository.path] = m
     end
 
-    def resolve_name(repo)
-      pom = REXML::Document.new(repo.cat_file(repo.revparse('HEAD:pom.xml')))
+    def resolve_name(repository)
+      repo = repository.repo
+      pom = REXML::Document.new(repo.cat_file(repo.revparse("HEAD:#{repository.relative_path}pom.xml")))
       pom.root.elements['name'].text.sub(/ (Aggregator|Parent)/, '')
     end
 
-    def resolve_group_id(repo)
-      pom = REXML::Document.new(repo.cat_file(repo.revparse('HEAD:pom.xml')))
-      pom.root.elements['groupId'].text
+    def resolve_group_id(repository)
+      repo = repository.repo
+      pom = REXML::Document.new(repo.cat_file(repo.revparse("HEAD:#{repository.relative_path}pom.xml")))
+      if !pom.root.elements['groupId'].nil?
+        pom.root.elements['groupId'].text
+      else
+        pom.root.elements['parent'].elements['groupId'].text
+      end
     end
 
     # TODO should track lead by release version (for historical reasons)
-    def resolve_lead(repo)
+    def resolve_lead(repository)
+      repo = repository.repo
       lead = OpenStruct.new
-      pom = REXML::Document.new(repo.cat_file(repo.revparse('HEAD:pom.xml')))
+      pom = REXML::Document.new(repo.cat_file(repo.revparse("HEAD:#{repository.relative_path}pom.xml")))
       pom.each_element('/project/developers/developer') do |dev|
         # capture first developer as fallback lead
         if lead.nil?
@@ -117,13 +126,19 @@ module Awestruct::Extensions::Repository::Visitors
       end
       if lead.name?.nil?
         # FIXME parameterize
-        lead.name = 'Aslak Knutsen'
-        lead.email = 'aslak@redhat.com'
+        if repository.path == 'jboss-as'
+          lead.name = 'Jason T. Greene'
+          lead.email = 'jason.greene@redhat.com'
+        else
+          lead.name = 'Aslak Knutsen'
+          lead.email = 'aslak@redhat.com'
+        end
       end
       lead
     end
 
-    def resolve_dep_versions(repo, rev)
+    def resolve_dep_versions(repository, rev)
+      repo = repository.repo
       versions = {}
       ['pom.xml', 'build/pom.xml'].each do |path|
         begin
@@ -144,26 +159,23 @@ module Awestruct::Extensions::Repository::Visitors
       versions
     end
 
-    def resolve_committers_between(repo, sha1, sha2)
-      # get first commit (method??)
+    def resolve_committers_between(repository, sha1, sha2)
+      repo = repository.repo
+      seen = {}
+      log = repo.log(nil).path(repository.relative_path)
       if sha1.nil?
-        sha1 = repo.log(1000).until(repo.gcommit(sha2).committer_date).each{|c|}.last.sha
+        log = log.object(sha2)
+      else
+        log = log.between(sha1, sha2)
       end
-      #names = {}
-      seen = []
-      # grabbing e-mail so we can lookup their identity later
-      repo.log(1000).between(sha1, sha2).map {|c|
-        OpenStruct.new({:name => c.author.name, :email => c.author.email})
-      #}.each {|e|
-      #  # cleanup name permutations
-      #  if names.has_key? e.email
-      #    e.name = names[e.email]
-      #  else
-      #    names[e.email] = e.name
-      #  end
+      log.map {|c|
+        # grabbing e-mail so we can lookup their identity later
+        OpenStruct.new({:name => c.author.name, :email => c.author.email, :commits => 0})
       }.select {|e|
-        exists = seen.include? e.email
-        seen << e.email if !exists
+        # This loop grabs unique authors by email and counts commits
+        exists = seen.has_key? e.email
+        seen[e.email] = e if !exists
+        seen[e.email].commits += 1
         !exists
       }.sort {|a, b| a.name <=> b.name}
     end
@@ -182,13 +194,18 @@ module Awestruct::Extensions::Repository::Visitors
       if m.releases.size > 0
         m.bom = OpenStruct.new
         m.bom.groupId = m.groupId
-        m.bom.artifactId = resolve_bom_artifact_id(repository.repo, repository.clone_dir, m.releases.last.version)
+        m.bom.artifactId = resolve_bom_artifact_id(repository, m.releases.last.version)
         m.bom.version = m.releases.last.version
         # TODO could include what the bom includes (perhaps expandable div w/ bom contents?)
       end
     end
 
-    def resolve_bom_artifact_id(repo, clone_dir, tag)
+    def resolve_bom_artifact_id(repository, tag)
+      repo = repository.repo
+      clone_dir = repository.clone_dir
+      if repository.relative_path != ''
+        clone_dir = File.join(clone_dir, repository.relative_path)
+      end
       bom_dirname = 'bom'
       if !File.exist? File.join(clone_dir, 'bom', 'pom.xml')
         bom_dirname = File.basename(File.dirname(Dir.glob(File.join(clone_dir, '*-bom', 'pom.xml')).first))
@@ -209,9 +226,9 @@ module Awestruct::Extensions::Repository::Visitors
       m = site.modules[repository.path]
       m.type = 'platform'
       m.artifacts = [
-        OpenStruct.new({:variant => 'JUnit', :version => m.releases.last.depversions['junit_junit'], :coordinates =>
+        OpenStruct.new({:variant => 'JUnit', :coordinates =>
             OpenStruct.new({:groupId => 'org.jboss.arquillian.junit', :artifactId => 'arquillian-junit-container'})}),
-        OpenStruct.new({:variant => 'TestNG', :version => m.releases.last.depversions['testng_testng'], :coordinates =>
+        OpenStruct.new({:variant => 'TestNG', :coordinates =>
             OpenStruct.new({:groupId => 'org.jboss.arquillian.testng', :artifactId => 'arquillian-testng-container'})})
       ]
     end
@@ -238,35 +255,39 @@ module Awestruct::Extensions::Repository::Visitors
     include Base
 
     def handles(repository)
-      repository.path =~ /^arquillian\-container\-.+/ 
+      repository.path =~ /^arquillian\-container\-.+/ or
+          repository.path == 'jboss-as'
     end
 
     def visit(repository, site)
       m = site.modules[repository.path]
       m.type = 'container'
-      m.containers = resolve_container_adapters(repository.repo)
+      m.containers = resolve_container_adapters(repository)
       m.containers.each do |container|
-        populate_container_info(repository.repo, container)
+        populate_container_info(repository, container)
         container.groupId = m.groupId
       end
     end
 
-    def resolve_container_adapters(repo)
+    def resolve_container_adapters(repository)
+      repo = repository.repo
       adapters = []
-      pom = REXML::Document.new(repo.cat_file(repo.revparse('HEAD:pom.xml')))
+      pom = REXML::Document.new(repo.cat_file(repo.revparse("HEAD:#{repository.relative_path}pom.xml")))
       pom.each_element('/project/modules/module') do |mod|
         if mod.text =~ /([^-]+)-(remote|managed|embedded)(-(.+))?$/
-          adapters << OpenStruct.new({:path => mod.text, :prefix => $1, :management => $2, :version => $4 || '1'})
+          adapters << OpenStruct.new({:path => mod.text, :prefix => $1, :management => $2, :version => $4})
         end
       end
       adapters
     end
 
-    def populate_container_info(repo, container)
+    def populate_container_info(repository, container)
+      repo = repository.repo
       container.enrichers = []
-      pom = REXML::Document.new(repo.cat_file(repo.revparse("HEAD:#{container.path}/pom.xml")))
+      pom = REXML::Document.new(repo.cat_file(repo.revparse("HEAD:#{repository.relative_path}#{container.path}/pom.xml")))
       container.name = pom.root.elements['name'].text
       container.artifactId = pom.root.elements['artifactId'].text
+      # FIXME also need to check common submodule
       pom.each_element('/project/dependencies/dependency') do |dep|
         if dep.elements['groupId'].text.eql? 'org.jboss.arquillian.testenricher'
           container.enrichers << dep.elements['artifactId'].text.sub(/^arquillian-testenricher-/, '')
