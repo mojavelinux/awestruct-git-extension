@@ -531,7 +531,7 @@ module Awestruct::Extensions::Repository::Visitors
       container.desc = pom.root.text('description') || '!!!Missing description!!!'
       container.artifacts = [
         Artifact.new(container.name,
-            Artifact::Coordinates.new(pom.root.text('artifactId'), component.groupId, :jar, component.latest_version))
+            Artifact::Coordinates.new(component.groupId, pom.root.text('artifactId'), :jar, component.latest_version))
       ]
       # FIXME also need to check common submodule
       pom.each_element('/project/dependencies/dependency') do |dep|
