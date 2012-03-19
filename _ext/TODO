@@ -1,15 +1,22 @@
+* push my site to openshift
+* bootstrap into sarah's branch
+* integrate new backend into sarah's branch
+
+* url for component should link to documentation
+
 * abstract modules for Visitors and Crawlers
 * jira component url on component
 * show test enrichers and protocol for container adapters (perhaps composite template to fill in middle?)
 * # of commits per release (commits => {:authors => [], :count => 0}
 * when identities.yml is deleted, but not components.yml, we get no contributors listed
 * identities
+  * decide whether username == github_id or what username really is
   * not linking component leads to identities cleanly (most of the way there w/ search by jboss_username & username)
   * enhance identities?
   * emails helper method in identities
   * time zone (twitter gives us this)
   * show on map (ohloh gives us lat, long)
-* build status on module page
+* build status on module pages
 * cleanup component name like we did w/ module name
 * use modal dialog to show contributor list per release (or the count), release notes, etc
 * use modal dialog to contributor bio
@@ -21,11 +28,11 @@
   - get "pretty" family by looking after Arquillian and before Managed|Embedded|Remote
 * mapping for component type...perhaps do magic on visitor name?
 * two columns on modules page perhaps?
-* RestClient enhancer that detects request for application/json and parses to JSON
 * link to containers in family (perhaps with pills)
 * TomDoc!! http://tomdoc.org/
 * twitter bootstrap badges and inverse labels were fixed (apply to stylesheet)
 * define max_version for container if another is detected w/ a higher min_version
+* RestClient enhancer that detects request for application/xml and parses to REXML::Document
 
 use https://github.com/pengwynn/octokit
 
