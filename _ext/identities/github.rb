@@ -23,7 +23,7 @@ module Identities
       def collect(identities)
         @repositories.each do |r|
           url = CONTRIBUTOR_URL_TEMPLATE % [ r.owner, r.path ]
-          contributors = RestClient.get(url, :accept => 'application/json')
+          contributors = RestClient.get url, :accept => 'application/json'
           contributors.each do |c|
             github_id = c['login'].downcase
             ## BEGIN REVIEW
@@ -103,13 +103,16 @@ module Identities
       def crawl(identity)
         url = identity.github_url
         if url.nil?
-          ['github_id', 'username'].each do |k|
-            user = identity.send(k)
-            if !user.nil?
-              url = PROFILE_URL_TEMPLATE % user
-              break
-            end
+          if !identity.github_id.nil?
+            url = PROFILE_URL_TEMPLATE % identity.github_id
           end
+          #['github_id', 'username'].each do |k|
+          #  user = identity.send(k)
+          #  if !user.nil?
+          #    url = PROFILE_URL_TEMPLATE % user
+          #    break
+          #  end
+          #end
         end
 
         # can't find user, give up
@@ -117,8 +120,9 @@ module Identities
           return
         end
 
-        data = RestClient.get(url, :accept => 'application/json')
-        identity.username = data['login'].downcase
+        data = RestClient.get url, :accept => 'application/json'
+        identity.github_id = data['login'].downcase
+        identity.username = identity.github_id
         identity.github = OpenStruct.new if identity.github.nil?
         identity.github.merge!(OpenStruct.new({
           :id => data['id'],
