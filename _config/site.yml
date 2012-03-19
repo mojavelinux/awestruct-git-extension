@@ -1,5 +1,6 @@
-title: Awestruct Git Extension
-description: Prototype for the next-gen Awestruct Git Extension
-keywords: awestruct,git
+title: Arquillian Website Prototype
+brand: Arquillian
+description: Prototype of the Arquillian website for developing the next generation Awestruct git extension
+keywords: awestruct,git,arquillian
 ohloh_api_key: sGiJRdK2Cq8Nz0TkTNAKyw
 resolve_published_artifacts: false

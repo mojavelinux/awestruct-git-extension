@@ -61,7 +61,7 @@
             %span.icon-bar
             %span.icon-bar
             %span.icon-bar
-          %a.brand{ :href=>'/' } Project Name
+          %a.brand{ :href=>'/' }= site.brand.downcase
           .nav-collapse
             %ul.nav
               %li{ :class=>page.url =~ /^\/(index\.html)?$/ ? 'active' : nil }

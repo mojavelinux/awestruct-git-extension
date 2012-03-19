@@ -2,26 +2,35 @@
 layout: base
 ---
 .hero-unit
-  %h1 You're awestruct!
-  %p Your site is all setup to use Twitter Bootstrap with Awestruct.
+  %h1 Arquillian
   %p
-    %a.btn.btn-primary.btn-large{ :href=>'http://awestruct.org' }
+    %em The revolutionary open source Java testing platform
+  %p No more mocks. No more container lifecycle and deployment hassles. Just real tests!
+  %p
+    %a.btn.btn-primary.btn-large{ :href=>'http://arquillian.org' }
       %i.icon-info-sign.icon-white
       Learn more &raquo;
 .row
   .span4
     %h2 About
-    %p Awestruct is a framework for creating static HTML sites. It's inspired by the awesome Jekyll utility in the same genre.
-    %p Additionally, Awestruct integrates technologies such as Compass, Markdown and Haml.
+    %p Arquillian makes integration testing a breeze!
+    %p Arquillian is a platform that simplifies integration testing for Java middleware. It deals with all the plumbing of container management, deployment and framework initialization so you can focus on the task at hand, writing your tests. Real tests.
     %p
-      %a.btn{ :href=>'http://awestruct.org' } View details &raquo; 
+      %a.btn{ :href=>'http://arquillian.org' } View details &raquo; 
   .span4
     %h2 Goal
-    %p The goal of Awestruct is to make it trivially easy to bake out non-trivial static websites. In addition to providing template-driven site creation (using Haml), Awestruct provides facilities for easily priming the site creation with additional non-page data.
+    %p The mission of the Arquillian project is to provide a powerful testing platform that handles all the plumbing of managing the container lifecycle, deployment and framework initialization so you can focus on writing your integration tests.
+    %p To avoid introducing unnecessary complexity into the developer’s build environment, Arquillian integrates seamlessly with familiar testing frameworks (e.g., JUnit 4, TestNG 5), allowing tests to be launched using existing IDE, Ant and Maven test plugins—without any add-ons.
     %p
-      %a.btn{ :href=>'http://awestruct.org' } View details &raquo; 
+      %a.btn{ :href=>'http://arquillian.org' } View details &raquo; 
   .span4
     %h2 Concept
-    %p The core concept of Awestruct is that of structures, specifically Ruby OpenStruct structures. The struct aspect allows arbitrary, schema-less data to be associated with a specific page or the entire site.
+    %p Arquillian minimizes the burden on you—the developer—by encapsulating your integration test in a lifecycle that performs the following steps:
+    %ul
+      %li Manages the lifecycle of the container (start/stop),
+      %li Bundles the test class with dependent classes and resources into a deployable archive,
+      %li Enriches the test class (e.g., resolving @Inject, @EJB and @Resource injections),
+      %li Deploys the archive to test (deploy/undeploy) and
+      %li Captures results and failures.
     %p
-      %a.btn{ :href=>'http://awestruct.org' } View details &raquo; 
+      %a.btn{ :href=>'http://arquillian.org' } View details &raquo; 
