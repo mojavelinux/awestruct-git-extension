@@ -1,0 +1,50 @@
+* abstract modules for Visitors and Crawlers
+* jira component url on component
+* show test enrichers and protocol for container adapters (perhaps composite template to fill in middle?)
+* # of commits per release (commits => {:authors => [], :count => 0}
+* when identities.yml is deleted, but not components.yml, we get no contributors listed
+* identities
+  * not linking component leads to identities cleanly (most of the way there w/ search by jboss_username & username)
+  * enhance identities?
+  * emails helper method in identities
+  * time zone (twitter gives us this)
+  * show on map (ohloh gives us lat, long)
+* build status on module page
+* cleanup component name like we did w/ module name
+* use modal dialog to show contributor list per release (or the count), release notes, etc
+* use modal dialog to contributor bio
+* if not arquillian-core, add note to refer to arquillian-core page to setup arquillian
+* primary org idea? to separate out auxiliary/external commits?
+  - perhaps core and external based on whether repository owner is arquillian?
+* rename modules to modules_by_type or some other way of organizing; perhaps using extend w/ methods
+* family needs to be capitialized (may need a mapping here, cause we got some tricky stuff)
+  - get "pretty" family by looking after Arquillian and before Managed|Embedded|Remote
+* mapping for component type...perhaps do magic on visitor name?
+* two columns on modules page perhaps?
+* RestClient enhancer that detects request for application/json and parses to JSON
+* link to containers in family (perhaps with pills)
+* TomDoc!! http://tomdoc.org/
+* twitter bootstrap badges and inverse labels were fixed (apply to stylesheet)
+* define max_version for container if another is detected w/ a higher min_version
+
+use https://github.com/pengwynn/octokit
+
+try on forge or shrinkwrap?
+
+== Tips/Tricks
+
+* ||=
+* use --no-generate for quick startup of awestruct
+
+== Partially done
+
+* TomEE <- need more flexibility in tag regex & not capturing arquillian core version
+  /^(openejb-)?[1-9]\d*\.\d+\.\d+[\.-]((alpha|beta|cr)-?[1-9]\d*|final)$/
+  - https://github.com/apache/openejb/tree/trunk/openejb/arquillian-tomee
+* don't overwrite identity info if new value is shorter (for things like bio and location) <- for now just disabled overwrite
+* fork button (added, but may need tweeking)
+** https://github.com/markdotto/github-buttons <- should host in the site (perhaps a good awestruct extension)
+
+== Resources
+
+* http://docs.atlassian.com/jira/REST/4.4.4/

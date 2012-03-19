@@ -1,0 +1,15 @@
+---
+layout: base
+---
+.page-header
+  %h1
+    Contributors
+    %small= site.identities.contributors().size
+%table.table.table-striped
+  %tbody
+    - site.identities.contributors().sort_by{|c| c.commits * Order::DESC}.each do |c|
+      %tr
+        %td
+          %i.icon-user 
+          = c.name || c.username
+          %span.muted #{c.commits} #{'contribution'.pluralize_unless_one(c.commits)}

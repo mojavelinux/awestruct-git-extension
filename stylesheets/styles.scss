@@ -1,5 +1,27 @@
-// I gather this file is a starting point for the project.
 @import "bootstrap";
 
-// Include responsive Bootstrap styles
-// @import "bootstrap-responsive";
+// missing styles
+.nav-list .divider {
+  height: 1px;
+  margin: 8px 1px;
+  overflow: hidden;
+  background-color: #e5e5e5;
+  border-bottom: 1px solid #ffffff;
+  *width: 100%;
+  *margin: -5px 0 5px;
+}
+
+@import "bootstrap-responsive";
+
+// restore the widest monitors to the default fixed grid
+@media (min-width: 1200px) {
+  @include gridSystemGenerate($gridColumns, $gridColumnWidth, $gridGutterWidth);
+  @include fluidGridSystemGenerate($gridColumns, $fluidGridColumnWidth, $fluidGridGutterWidth);
+  @include inputGridSystemGenerate($gridColumns, $gridColumnWidth, $gridGutterWidth);
+  .thumbnails {
+    margin-left: -$gridGutterWidth;
+  }
+  .thumbnails > li {
+    margin-left: $gridGutterWidth;
+  }
+}

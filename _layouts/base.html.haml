@@ -11,19 +11,74 @@
         padding-top: 60px;
       }
     %link{ :rel=>'stylesheet', :type=>'text/css', :href=>'/stylesheets/styles.css' }
+    %link{ :rel=>'stylesheet', :type=>'text/css', :href=>'/stylesheets/prettify.css' }
+    :css
+      dl.unstyled {
+        margin-bottom: 0;
+      }
+      dl.unstyled dd {
+        margin-left: 0;
+        margin-bottom: 8px;
+      }
+      table tbody tr .tag {
+        visibility: hidden;
+      }
+      table tbody tr .tag a {
+        color: white;
+        text-decoration: none;
+      }
+      table tbody tr:hover .tag {
+        visibility: visible;
+      }
+      section {
+        padding-top: 17px;
+      }
+      .icon-github {
+        background-image: url("/images/icon-github.png");
+        background-position: 0 0;
+        width: 16px;
+        height: 16px;
+        line-height: 16px;
+      }
+      h3 [class^="icon-"],
+      h3 [class*=" icon-"] {
+        vertical-align: baseline;
+      }
+      .navbar-fixed-top .brand {
+        font-weight: bold;
+        color: #000;
+        text-shadow: 0 1px 0 rgba(255,255,255,.1), 0 0 30px rgba(255,255,255,.125);
+        padding-top: 9px;
+        padding-bottom: 11px;
+      }
     /[if lt IE 9]
       %script{ :type=>'text/javascript', :src=>'//html5shim.googlecode.com/svn/trunk/html5.js' }
   %body
     .navbar.navbar-fixed-top
       .navbar-inner
         .container
+          %a.btn.btn-navbar{:data=>{:toggle=>'collapse', :target=>'.nav-collapse'}}
+            %span.icon-bar
+            %span.icon-bar
+            %span.icon-bar
           %a.brand{ :href=>'/' } Project Name
-          %ul.nav
-            %li
-              %a{ :href=>'/' } Home
+          .nav-collapse
+            %ul.nav
+              %li{ :class=>page.url =~ /^\/(index\.html)?$/ ? 'active' : nil }
+                %a{ :href=>'/' } Home
+              %li{ :class=>page.url =~ /^\/blog(\.html|\/.*)$/ ? 'active' : nil }
+                %a{ :href=>'/blog.html' } Blog
+              %li{ :class=>page.url =~ /^\/modules(\.html|\/.*)$/ ? 'active' : nil }
+                %a{ :href=>'/modules.html' } Modules
+              %li{ :class=>page.url =~ /^\/contributors(\.html|\/.*)$/ ? 'active' : nil }
+                %a{ :href=>'/contributors.html' } Contributors
     .container
       ~ content
       %hr
       %footer
         %p &copy; Organization #{Date.today.year}
     %script{ :type=>'text/javascript', :src=>'//cdnjs.cloudflare.com/ajax/libs/jquery/1.7.1/jquery.min.js' }
+    %script{ :type=>'text/javascript', :src=>'//twitter.github.com/bootstrap/assets/js/bootstrap-collapse.js' }
+    %script{ :type=>'text/javascript', :src=>'//cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js' }
+    :javascript
+      prettyPrint();

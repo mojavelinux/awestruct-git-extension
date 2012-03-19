@@ -1,0 +1,19 @@
+---
+layout: base
+---
+.row
+  .span9
+    - page.posts.each do |post|
+      .page-header
+        %h1
+          %a{ :href => post.url }= post.title
+      %address
+        = post.date.strftime('%b %d, %Y')
+        by
+        = site.identities.lookup_by_name(post.author).name
+      ~ post.content
+      %hr
+      = tag_links(post.tags)
+  .span3
+    %h2 Tags
+    = site.posts_tag_cloud.to_s.gsub(/(>.+?)-/, '\1&#8209;')
