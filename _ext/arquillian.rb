@@ -489,12 +489,13 @@ module Awestruct::Extensions::Repository::Visitors
       pom.each_element('/project/modules/module') do |mod|
         module_cnt += 1
         if mod.text =~ /.*?-(remote|managed|embedded)(-(.+))?$/
+          (management, min_version) = [$1, $3]
           adapters << OpenStruct.new({
             :relative_path => mod.text + '/',
             :basepath => mod.text.sub(/container(?=-)/, vendor),
             :vendor => vendor,
-            :management => $1,
-            :min_version => $3
+            :management => management,
+            :min_version => min_version
           })
         elsif mod.text.eql? 'openshift-express'
           # FIXME this should be openshift-express-remote
