@@ -1,14 +1,16 @@
-* push my site to openshift
+* change relative_path to subtree_path?
 * bootstrap into sarah's branch
 * integrate new backend into sarah's branch
 
-* url for component should link to documentation
+* put Arquillian Core version reference in guides
+* jira component url on component
+* url for component (grabbed from github) should link to documentation
 
 * abstract modules for Visitors and Crawlers
-* jira component url on component
+* consider using Observers mixin for handling notifications between objects
 * show test enrichers and protocol for container adapters (perhaps composite template to fill in middle?)
 * # of commits per release (commits => {:authors => [], :count => 0}
-* when identities.yml is deleted, but not components.yml, we get no contributors listed
+* FIXME: when identities.yml is deleted, but not components.yml, we get no contributors listed
 * identities
   * decide whether username == github_id or what username really is
   * not linking component leads to identities cleanly (most of the way there w/ search by jboss_username & username)
@@ -33,6 +35,14 @@
 * twitter bootstrap badges and inverse labels were fixed (apply to stylesheet)
 * define max_version for container if another is detected w/ a higher min_version
 * RestClient enhancer that detects request for application/xml and parses to REXML::Document
+* use logger instead of puts:
+  require 'logger'
+  log = Logger.new(STDOUT)
+  log.formatter = Proc.new{|severity, datetime, progname, msg|
+    "#{severity}: #{msg}\n"
+  }
+  log.level = Logger::DEBUG
+  log.debug('hi') 
 
 use https://github.com/pengwynn/octokit
 
